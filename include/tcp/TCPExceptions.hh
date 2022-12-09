@@ -1,4 +1,4 @@
-/* TCPExceptions.hh -- TCP Exception classes */
+/* tcp/TCPExceptions.hh -- TCP Exception classes */
 
 /*
  * Copyright 2022 Youkou Tenhouin <youkou@tenhou.in>
