@@ -1,0 +1,33 @@
+/* tcp/TCPExceptions.hh -- TCP Exception classes */
+
+/*
+ * Copyright 2022 Youkou Tenhouin <youkou@tenhou.in>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef IZUMO_TCP_TCPEXCEPTIONS_HH_
+#define IZUMO_TCP_TCPEXCEPTIONS_HH_
+
+#include <stdexcept>
+
+namespace izumo::tcp {
+
+class EndOfStreamException : public std::runtime_error {
+  public:
+    EndOfStreamException() : std::runtime_error("End of stream") {}
+};
+
+} // namespace izumo::tcp
+
+#endif /* IZUMO_TCP_TCPEXCEPTIONS_HH_ */
