@@ -23,11 +23,11 @@
 
 namespace izumo::tcp {
 
-class EndOfStreamException: public std::runtime_error {
+class EndOfStreamException : public std::runtime_error {
   public:
     EndOfStreamException() : std::runtime_error("End of stream") {}
 };
 
-}
+} // namespace izumo::tcp
 
 #endif /* IZUMO_TCP_TCPEXCEPTIONS_HH_ */
