@@ -190,7 +190,7 @@ class AsyncPromise<void> : public AsyncPromiseBase {
     }
 
     void
-    getResult()
+    result()
     {
     }
 
