@@ -19,40 +19,78 @@
 /* XXX temporary implementation */
 
 #include <backends/epoll.hh>
+#include <http/HTTPHeaders.hh>
 #include <tcp/TCPServer.hh>
 
+#include <cstring>
+#include <iostream>
+
 using izumo::async::Async;
-using izumo::backends::EpollTCPServer;
 using izumo::backends::EpollService;
+using izumo::backends::EpollTCPServer;
+using izumo::http::RequestHeader;
+using izumo::http::ResponseHeader;
 using izumo::tcp::TCPStream;
 using izumo::util::ByteArray;
 
-class EchoServer : public EpollTCPServer {
+class TestHTTPServer : public EpollTCPServer {
   protected:
     Async<void> handleRequest(TCPStream stream) override;
 
   public:
-    EchoServer(const char* addr, std::uint16_t port)
+    TestHTTPServer(const char* addr, std::uint16_t port)
         : EpollTCPServer(addr, port)
     {
     }
 };
 
+const char RESPONSE[] = "HTTP/1.1 200 Established\r\n"
+                        "Server: Izumo\r\n"
+                        "Content-Type: text/plain\r\n"
+                        "Content-Length: 11\r\n\r\n"
+                        "IZUMO DEMO\n";
+
 Async<void>
-EchoServer::handleRequest(TCPStream stream)
+TestHTTPServer::handleRequest(TCPStream stream)
 {
     ByteArray buffer(4096);
 
+    RequestHeader req;
+
+    std::size_t bytesRead = 0;
+
     while (true) {
-        auto incoming = co_await stream.readAtMost(buffer.toView());
-        co_await stream.sendAll(incoming);
+        bytesRead += (co_await stream.readAtMost(
+                          buffer.toView(bytesRead, buffer.size())))
+                         .size();
+
+        try {
+            req.parse(buffer.toView(bytesRead));
+        } catch (izumo::http::IncompleteInput) {
+            continue;
+        }
+
+	break;
     }
+
+    std::cout << "method: " << req.method << std::endl;
+    std::cout << "target: " << req.target << std::endl;
+    std::cout << "version: " << req.version << std::endl;
+    std::cout << "fields:" << std::endl;
+
+    for (auto& f : req.fields) {
+        std::cout << "  name: " << f.name << std::endl;
+        std::cout << "  value: " << f.value << std::endl << std::endl;
+    }
+
+    std::memcpy(buffer.data(), RESPONSE, sizeof(RESPONSE));
+    co_await stream.sendAll(buffer.toView(sizeof(RESPONSE)));
 }
 
 int
 main()
 {
-    EchoServer srv("127.0.0.1", 1551);
+    TestHTTPServer srv("127.0.0.1", 1551);
     srv.start();
     EpollService::instance().start();
 }
